@@ -3,5 +3,10 @@
 #include <string>
 
 struct GymRecord {
-    std::string name;
+    long timestamp;
+    int day_of_week;
+    int hour;
+    int temperature;
+    bool is_holiday;
+    int headcount;
 };
