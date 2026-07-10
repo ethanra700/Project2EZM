@@ -1,6 +1,4 @@
 #include "bench.h"
-#include "loader.h"
-#include "GymRecord.h"
 #include "hashmap.h"
 #include "heap.h"
 #include <chrono>
@@ -62,10 +60,9 @@ void runSize(const std::vector<GymRecord>& all, std::size_t n) {
 
 }
 
-void runBenchmarks() {
-    auto all = loadRecords("data.csv");
+void runBenchmarks(const std::vector<GymRecord>& all) {
     if (all.empty()) {
-        std::cout << "no data loaded from data.csv\n";
+        std::cout << "no data loaded\n";
         return;
     }
 
