@@ -11,6 +11,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
 add_executable(${PROJECT_NAME}
+    src/main.cpp
     src/structures/heap.cpp
     src/structures/heap.h
     src/structures/hashmap.cpp
