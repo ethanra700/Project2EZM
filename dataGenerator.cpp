@@ -8,7 +8,6 @@
 #include <cmath>
 #include <algorithm>
 
-// Struct to hold a single row of data
 struct GymData {
     int numPeople;
     std::string date;
@@ -32,7 +31,6 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    //Temp distribution shown in the actual dataset
     std::normal_distribution<> tempDist(58.56, 6.32);
     //Hourly mean distribution of people
     const double hourMean[24] = {14.72, 2.40, 0.18, 0.15, 0.28, 1.05, 8.76, 15.39, 24.05, 30.19, 33.73, 36.22, 36.11, 34.57, 33.93, 37.20, 42.96, 47.64, 48.30, 44.74, 41.67, 42.92, 40.46, 26.15};
@@ -62,7 +60,7 @@ int main() {
 
 
     const int ROWS_TO_GENERATE = 37816; //# of remaining data points needed
-    const int TIME_INCREMENT_SECONDS = 600; //  buffer of time between each data point generation
+    const int TIME_INCREMENT_SECONDS = 600;
     for (int i = 0; i < ROWS_TO_GENERATE; ++i) {
         GymData data;
 
@@ -81,33 +79,21 @@ int main() {
         data.month = timeStruct.tm_mon + 1;
         data.hour = timeStruct.tm_hour;
 
-        // Generate number of people at a certain time using the normal distribution for this hour
         std::normal_distribution<> peopleDist(hourMean[data.hour], hourStd[data.hour]);
         int generatedPeople = std::round(peopleDist(gen));
 
-        data.numPeople = std::max(0, generatedPeople); //capped # of people at 0 for minimum so it doesnt go negative
-
+        data.numPeople = std::max(0, generatedPeople); 
         data.temperature = tempDist(gen);
         data.isHoliday = (holidayDist(gen) == 1) ? 1 : 0;
         data.isStartSemester = (data.month == 8 || data.month == 1) ? 1 : 0;
         data.isDuringSemester = (data.month >= 9 && data.month <= 11) || (data.month >= 2 && data.month <= 5) ? 1 : 0;
 
-        //Write to File
-        outFile << data.numPeople << ","
-                << data.date << ","
-                << data.timestamp << ","
-                << data.dayOfWeek << ","
-                << data.isWeekend << ","
-                << data.isHoliday << ","
-                << std::fixed << std::setprecision(2) << data.temperature << ","
-                << data.isStartSemester << ","
-                << data.isDuringSemester << ","
-                << data.month << ","
-                << data.hour << "\n";
+
+        outFile << data.numPeople << "," << data.date << "," << data.timestamp << "," << data.dayOfWeek << "," << data.isWeekend << "," << data.isHoliday << "," << std::fixed << std::setprecision(2) << data.temperature << "," << data.isStartSemester << "," << data.isDuringSemester << "," << data.month << "," << data.hour << "\n";
     }
 
     outFile.close();
-    std::cout << "Successfully generated " << ROWS_TO_GENERATE << " accurate data points!" << std::endl;
+
 
     return 0;
 }
