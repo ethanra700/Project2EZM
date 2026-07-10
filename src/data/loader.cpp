@@ -79,3 +79,25 @@ namespace {
     }
 }
 
+
+vector<GymRecord> loadRecords(const string& filePath) {
+    auto entries = vector<GymRecord>{};
+    auto input = ifstream(filePath);
+    if (input.is_open() == false) return entries;
+
+    entries.reserve(100000);
+    auto headerPending = true;
+    auto row = string{};
+
+    for (; getline(input, row); ) {
+        if (headerPending == true) {
+            headerPending = false;
+        } else {
+            auto entry = GymRecord{};
+            if (buildRecord(row, entry) == true) entries.push_back(entry);
+        }
+    }
+    return entries;
+}
+
+
