@@ -99,3 +99,38 @@ QVariantMap BackendService::congestionFor(const QString& date, const QString& ti
     return {{"heading", "Congestion for " + date + " at " + timeLabel},{"message", congestion},{"details", QVariant::fromValue(QStringList{"Expected occupancy: " + occupancyLabel,"Overall dataset average: " + overallAverageLabel,"Matching weekday: " + kDayNames[day],})},};
 }
 
+QVariantMap BackendService::weeklyComparison() const {
+    if (!hasData()) {
+        return unavailableDataResult();
+    }
+    static const std::vector<QString> kDayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    std::vector<long long> totals(7, 0);
+    std::vector<int> counts(7, 0);
+    for (const GymRecord& record : records_) {
+        if (record.day_of_week >= 0 && record.day_of_week <= 6) {
+            totals[record.day_of_week] += record.headcount;
+            ++counts[record.day_of_week];
+        }
+    }
+    int bestDay = -1;
+    int busiestDay = -1;
+    for (int day = 0; day < 7; ++day) {
+        if (counts[day] == 0) {
+            continue;
+        }
+        if (bestDay == -1 || totals[day] * counts[bestDay] < totals[bestDay] * counts[day]) {
+            bestDay = day;
+        }
+        if (busiestDay == -1 || totals[day] * counts[busiestDay] > totals[busiestDay] * counts[day]) {
+            busiestDay = day;
+        }
+    }
+    if (bestDay == -1) {
+        return unavailableDataResult();
+    }
+    auto avg = [&](int i) { return double(totals[i]) / counts[i]; };
+    const QString quietestOccupancy = QString::number(avg(bestDay), 'f', 1) + " average visitors";
+    const QString busiestOccupancy = QString::number(avg(busiestDay), 'f', 1) + " average visitors";
+    const QString overallOccupancy = QString::number(overallAverage_, 'f', 1) + " average visitors";
+    return {{"heading", "Weekly congestion comparison"},{"message", kDayNames[bestDay] + " has the lowest average occupancy in the loaded data."},{"details", QVariant::fromValue(QStringList{"Quietest: " + kDayNames[bestDay] + " — " + quietestOccupancy,"Busiest: " + kDayNames[busiestDay] + " — " + busiestOccupancy,"Overall: " + overallOccupancy,})},};
+}
