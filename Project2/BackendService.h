@@ -24,7 +24,7 @@ public:
     Q_INVOKABLE QVariantMap timePrompt(const QString &date) const;
     Q_INVOKABLE QVariantMap congestionFor(const QString &date, const QString &time) const;
     Q_INVOKABLE QVariantMap weeklyComparison() const;
-    //Q_INVOKABLE QVariantMap benchmark() const;
+    Q_INVOKABLE QVariantMap benchmark() const;
     static BackendService *create(QQmlEngine *eng, QJSEngine *js);
 
 private:
