@@ -11,8 +11,6 @@ qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(WaitLessLiftMore
     main.cpp
-    BackendService.cpp
-    BackendService.h
 )
 
 set_source_files_properties(Project2/Constants.qml
@@ -28,6 +26,13 @@ qt_add_qml_module(WaitLessLiftMore
     SOURCES
         BackendService.cpp
         BackendService.h
+        src/data/GymRecord.h
+        src/data/loader.cpp
+        src/data/loader.h
+        src/structures/hashmap.cpp
+        src/structures/hashmap.h
+        src/structures/heap.cpp
+        src/structures/heap.h
 )
 
 qt_add_resources(WaitLessLiftMore "application_configuration"

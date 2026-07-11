@@ -166,7 +166,7 @@ Rectangle {
                     anchors.left: parent.left
                     anchors.leftMargin: 8
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "Enter Choice"
+                    text: root.step === "choice" ? "Enter choice" : root.step === "date" ? "Enter date" : "Enter time"
                     color: "#d0d1cd"
                     font.family: "Arial"
                     font.pixelSize: 20
@@ -228,7 +228,7 @@ Rectangle {
             Text {
                 width: parent.width
                 text: root.resTitle
-                color: "#840505"
+                color: "#78e08f"
                 font.family: "Arial"
                 font.pixelSize: 17
                 font.bold: true
