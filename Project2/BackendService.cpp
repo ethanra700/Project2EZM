@@ -134,3 +134,40 @@ QVariantMap BackendService::weeklyComparison() const {
     const QString overallOccupancy = QString::number(overallAverage_, 'f', 1) + " average visitors";
     return {{"heading", "Weekly congestion comparison"},{"message", kDayNames[bestDay] + " has the lowest average occupancy in the loaded data."},{"details", QVariant::fromValue(QStringList{"Quietest: " + kDayNames[bestDay] + " — " + quietestOccupancy,"Busiest: " + kDayNames[busiestDay] + " — " + busiestOccupancy,"Overall: " + overallOccupancy,})},};
 }
+//Benchmark modified from bench.cpp same building but different averaging for a better answer
+QVariantMap BackendService::benchmark() const {
+    if (!hasData()) {
+        return unavailableDataResult();
+    }
+    using Clock = std::chrono::steady_clock;
+    constexpr int repetitions = 250;
+    double sink = 0.0;
+    HashMap map;
+    auto started = Clock::now();
+    for (const GymRecord& record : records_) map.insert(record);
+    const double mapBuildMs = std::chrono::duration<double, std::milli>(Clock::now() - started).count();
+
+    Heap heap;
+    started = Clock::now();
+    for (const GymRecord& record : records_) heap.insert(record);
+    double heapBuildMs = std::chrono::duration<double, std::milli>(Clock::now() - started).count();
+
+    started = Clock::now();
+    for (int iteration = 0; iteration < repetitions; ++iteration) {
+        for (int day = 0; day < 7; ++day) {
+            const auto slot = map.leastCongestedSlot(day, 9, 10);
+            sink += slot.avg_headcount;
+        }
+    }
+    double mapQueryUs = std::chrono::duration<double, std::micro>(Clock::now() - started).count() / (repetitions * 7);
+
+    started = Clock::now();
+    for (int iteration = 0; iteration < repetitions; ++iteration) {
+        for (int day = 0; day < 7; ++day) {
+            const auto slot = heap.leastCongestedSlot(day, 9, 10);
+            sink += slot.avg_headcount;
+        }
+    }
+    double heapQueryUs = std::chrono::duration<double, std::micro>(Clock::now() - started).count() / (repetitions * 7);
+    return {{"heading", "Benchmark: Heap vs. Hash Map"},{"message", "Measured with " + QString::number(validRecordCount_) + " valid loaded records and " + QString::number(repetitions * 7) + " least-congested-time queries per structure."},{"details", QVariant::fromValue(QStringList{"Hash map build: " + QString::number(mapBuildMs, 'f', 2) + " ms","Heap build: " + QString::number(heapBuildMs, 'f', 2) + " ms","Hash map average query: " + QString::number(mapQueryUs, 'f', 2) + " µs","Heap average query: " + QString::number(heapQueryUs, 'f', 2) + " µs",})},};
+}
